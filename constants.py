@@ -35,7 +35,7 @@ BLACK_LIST_TOKENS = [
 ]
 
 # Пин коды администратора
-PIN_ADMIN = os.getenv('PIN_ADMIN')
+PIN_ADMIN = os.getenv('PIN_ADMIN', '11111111')
 PIN_ADMIN_DEFAULT = '87654321'
 LIST_PIN_ADMIN = [
     '14444',
