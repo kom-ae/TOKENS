@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Форматирование токенов</title>
+  <!-- Bootstrap 5 CSS -->
+  <link href="{{ url_for('static', filename='css/bootstrap.min.css')  }}" rel="stylesheet">
+</head>
+
+<body class="p-4">
+
+  <div class="container">
+    <h2 class="mb-4">Список токенов</h2>
+
+
+    <!-- Таблица -->
+    <div class="table-responsive">
+      <table class="table table-striped table-hover" id="dataTable">
+        <thead class="table-dark">
+          <tr>
+            <!-- <th>ID</th> -->
+            <th>Token</th>
+            <th>SN_raw</th>
+            <th>SN</th>
+            <th>Label</th>
+            <th>minPin</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for sn, token in tokens.items() %}
+          <tr data-model="{{ token.model }}" data-sn="{{ token.serial_num_raw }}" data-sn-raw="{{ token.serial_num }}"
+            data-label="{{ token.label }}" data-min-pin="{{ token.min_pin_user }}">
+            <td>{{ token.model }}</td>
+            <td>{{ token.serial_num_raw }}</td>
+            <td>{{ token.serial_num }}</td>
+            <td>{{ token.label }}</td>
+            <td>{{ token.min_pin_user }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+
+    <!-- Форма -->
+    <div class="mt-4 p-4 border rounded bg-light align-items-center">
+      <h4>Данные токена</h4>
+      <br>
+      <form id="tokenForm" class="align-items-center">
+        <div class="row align-items-center">
+          <div class="col-1">
+            <label for="model" class="form-label">Модель</label>
+          </div>
+          <div class="col-5">
+            <input type="text" class="form-control" id="model" readonly>
+          </div>
+          <div class="col-1">
+            <label for="min_pin_user" class="form-label">Мин ПИН</label>
+          </div>
+          <div class="col-5">
+            <input type="text" class="form-control" id="min_pin_user" readonly>
+          </div>
+        </div>
+        <div class="row mt-3 align-items-center">
+          <div class="col-1">
+            <label for="serial_num_raw" class="form-label">SN программный</label>
+          </div>
+          <div class="col-5">
+            <input type="text" class="form-control" id="serial_num_raw" readonly>
+          </div>
+          <div class="col-1">
+            <label for="serial_num" class="form-label">SN на корпусе</label>
+          </div>
+          <div class="col-5">
+            <input type="text" class="form-control" id="serial_num" readonly>
+          </div>
+        </div>
+
+        <div class="row mt-3 align-items-center">
+          <div class="col-1">
+            <label for="label" class="form-label">Имя</label>
+          </div>
+          <div class="col-5">
+            <input type="text" class="form-control" id="label">
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS и jQuery -->
+  <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
+  <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+
+
+  <!-- Скрипт для обработки клика по строке -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const rows = document.querySelectorAll('#dataTable tbody tr');
+      const form = document.getElementById('tokenForm');
+
+
+      rows.forEach(row => {
+        row.addEventListener('click', function () {
+          // Снимаем выделение
+          rows.forEach(r => r.classList.remove('table-active'));
+          // Выделяем текущую
+          this.classList.add('table-active');
+
+
+          // Получаем данные
+          const model = this.getAttribute('data-model');
+          const sn_raw = this.getAttribute('data-sn-raw');
+          const sn = this.getAttribute('data-sn');
+          const min_pin = this.getAttribute('data-min-pin');
+          const label = this.getAttribute('data-label');
+
+          // Заполняем форму
+          form.model.value = model;
+          form.serial_num_raw.value = sn_raw;
+          form.serial_num.value = sn;
+          form.min_pin_user.value = min_pin;
+          form.label.value = label;
+        });
+      });
+    });
+  </script>
+</body>
+
+</html>
