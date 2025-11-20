@@ -30,7 +30,7 @@
         </thead>
         <tbody>
           {% for sn, token in tokens.items() %}
-          <tr data-model="{{ token.model }}" data-sn="{{ token.serial_num_raw }}" data-sn-raw="{{ token.serial_num }}"
+          <tr data-model="{{ token.model }}" data-sn="{{ token.serial_num }}" data-sn-raw="{{ token.serial_num_raw }}"
             data-label="{{ token.label }}" data-min-pin="{{ token.min_pin_user }}">
             <td>{{ token.model }}</td>
             <td>{{ token.serial_num_raw }}</td>
@@ -43,9 +43,47 @@
       </table>
     </div>
 
-
+    <div class="mt-4 p-4 col-lg-12 border rounded bg-light align-items-center">
+      <h4>Выбран токен</h4>
+      <div class="col-12  my-3">
+        <form id="tokenForm" method="POST">
+          {{ form.hidden_tag() }}
+          <div class="input-group mb-3">
+            {{ form.model.label(class="input-group-text") }}
+            {{ form.model(readonly=True, class="form-control me-2") }}
+            {{ form.min_pin_user.label(class="input-group-text") }}
+            {{ form.min_pin_user(class="form-control me-2") }}
+          <!-- </div>
+          <div class="input-group mb-3"> -->
+            {{ form.serial_num_raw.label(class="input-group-text") }}
+            {{ form.serial_num_raw(class="form-control me-2") }}
+            {{ form.serial_num.label(class="input-group-text") }}
+            {{ form.serial_num(class="form-control") }}
+          </div>
+          <div class="col-5 input-group mb-3">
+            {{ form.label.label(class="input-group-text") }}
+            {{ form.label(class="form-control me-2") }}
+            {{ form.new_pin_user.label(class="input-group-text") }}
+            {{ form.new_pin_user(class="form-control me-2") }}
+            <!-- {{ form.submit_format(class="btn btn-outline-secondary") }} -->
+            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#formatModal">
+              Форматировать
+            </button>
+          </div>
+          <div class="col=5 md=3">
+            {% with messages = get_flashed_messages() %}
+              {% for message in messages %}
+                <p class="py=3 mb-3">
+                  {{ message }}
+                </p>
+              {% endfor %}
+            {% endwith %}
+          </div>
+        </form>
+      </div>
+    </div>
     <!-- Форма -->
-    <div class="mt-4 p-4 border rounded bg-light align-items-center">
+    <!-- <div class="mt-4 p-4 border rounded bg-light align-items-center">
       <h4>Данные токена</h4>
       <br>
       <form id="tokenForm" class="align-items-center">
@@ -87,46 +125,38 @@
           </div>
         </div>
       </form>
+    </div> -->
+  </div>
+
+
+      <!-- Модальное окно -->
+  <div class="modal fade" id="formatModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="confirmModalLabel">Подтверждение действия</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          Вы действительно хотите отформатировать выбранный токен?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+          <button type="submit" name="submit_format" value="1" class="btn btn-danger" form="tokenForm">Форматировать</button>
+        </div>
+      </div>
     </div>
   </div>
 
   <!-- Bootstrap JS и jQuery -->
   <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
+  <!-- <script src="{{ url_for('static', filename='js/popper/popper.min.js') }}"></script> -->
   <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
 
 
   <!-- Скрипт для обработки клика по строке -->
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      const rows = document.querySelectorAll('#dataTable tbody tr');
-      const form = document.getElementById('tokenForm');
+  <script src="{{ url_for('static', filename='js/row_click.js') }}"></script>
 
-
-      rows.forEach(row => {
-        row.addEventListener('click', function () {
-          // Снимаем выделение
-          rows.forEach(r => r.classList.remove('table-active'));
-          // Выделяем текущую
-          this.classList.add('table-active');
-
-
-          // Получаем данные
-          const model = this.getAttribute('data-model');
-          const sn_raw = this.getAttribute('data-sn-raw');
-          const sn = this.getAttribute('data-sn');
-          const min_pin = this.getAttribute('data-min-pin');
-          const label = this.getAttribute('data-label');
-
-          // Заполняем форму
-          form.model.value = model;
-          form.serial_num_raw.value = sn_raw;
-          form.serial_num.value = sn;
-          form.min_pin_user.value = min_pin;
-          form.label.value = label;
-        });
-      });
-    });
-  </script>
 </body>
 
 </html>

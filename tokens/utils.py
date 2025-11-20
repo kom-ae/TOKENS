@@ -86,6 +86,3 @@ def get_tokens():
 #     if info.state not in (CKS_RO_PUBLIC_SESSION, CKS_RW_PUBLIC_SESSION):
 #         session.logout()
 #     session.closeSession()
-
-
-
