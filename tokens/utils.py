@@ -1,3 +1,4 @@
+from pathlib import Path
 from PyKCS11 import PyKCS11Lib
 
 from constants import BLACK_LIST_TOKENS, LIST_LIBS
@@ -16,6 +17,8 @@ def get_pkcs(lib: str) -> PyKCS11Lib:
 def get_tokens():
     tokens: dict[str, Token] = {}
     for lib in LIST_LIBS:
+        if not Path(lib).is_file():
+            raise FileNotFoundError(f'Библиотека {lib} не найдена.')
         pkcs11: PyKCS11Lib = get_pkcs(lib)
         slots: list = get_slots(pkcs11)
         for slot in slots:

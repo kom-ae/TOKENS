@@ -7,7 +7,8 @@ from PyKCS11.constants import CKF_RW_SESSION, CKU_SO
 from constants import (LIST_PIN_ADMIN, MAX_PIN_COUNT_SO, MAX_PIN_COUNT_USER,
                        MIN_SO_PIN, MIN_USER_PIN, MODE_CHANGE_PIN, PIN_ADMIN,
                        TOKEN_CONF)
-from pkcs11_custom import PyKCS11LibCustom
+from tokens.exceptions import FormatException
+from tokens.pkcs11_custom import PyKCS11LibCustom
 
 
 class Token:
@@ -69,9 +70,9 @@ class Rutoken(Token):
                 capture_output=True,
                 text=True,
                 check=True
-            )
+            ).stdout
         except subprocess.CalledProcessError as err:
-            print('Ошибка:', err.returncode)
+            raise FormatException(f'{err.returncode}: {err.stderr}')
 
 
 class RutokenS(Rutoken):
@@ -105,9 +106,9 @@ class RutokenLite(Rutoken):
                 capture_output=True,
                 text=True,
                 check=True
-            )
+            ).stdout
         except subprocess.CalledProcessError as err:
-            print('Ошибка:', err.returncode)
+            raise FormatException(f'{err.returncode}: {err.stderr}')
 
 
 class RutokenECP(Rutoken):
@@ -134,9 +135,9 @@ class RutokenECP(Rutoken):
                 capture_output=True,
                 text=True,
                 check=True
-            )
+            ).stdout
         except subprocess.CalledProcessError as err:
-            print('Ошибка:', err.returncode)
+            raise FormatException(f'{err.returncode}: {err.stderr}')
 
 
 class JaCartaLaser(Token):
@@ -163,16 +164,16 @@ class JaCartaLaser(Token):
         try:
             info = pkcs11.getTokenInfo(self.slot)
         except PyKCS11Error as err:
-            print(str(err))
+            FormatException(str(err))
         if self.serial_num_raw != str(info.serialNumber).strip():
-            raise ValueError(('Устройство с серийным номером '
+            raise FormatException(('Устройство с серийным номером '
                               f'{self.serial_num_raw} извлечено.'))
         session = pkcs11.openSession(self.slot, CKF_RW_SESSION)
         self.__set_current_pin(session)
         # Закрываем сессию для инициализации токена.
         session.closeSession()
         if not self.current_pin:
-            raise ValueError('Пин код не удалось подобрать.')
+            raise FormatException('Пин код не удалось подобрать.')
         pkcs = PyKCS11LibCustom(self.lib_path)
         pkcs.initToken(self.slot, self.current_pin, label)
         del pkcs

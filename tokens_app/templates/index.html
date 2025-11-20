@@ -53,7 +53,7 @@
             {{ form.model(readonly=True, class="form-control me-2") }}
             {{ form.min_pin_user.label(class="input-group-text") }}
             {{ form.min_pin_user(class="form-control me-2") }}
-          <!-- </div>
+            <!-- </div>
           <div class="input-group mb-3"> -->
             {{ form.serial_num_raw.label(class="input-group-text") }}
             {{ form.serial_num_raw(class="form-control me-2") }}
@@ -71,14 +71,12 @@
             </button>
           </div>
           <div class="col=5 md=3">
-            {% with messages = get_flashed_messages() %}
-              {% for message in messages %}
-                <p class="py=3 mb-3">
-                  {{ message }}
-                </p>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% for category, message in messages %}
+                  <div class="alert alert-{{ category }}">{{ message }}</div>
               {% endfor %}
             {% endwith %}
-          </div>
+            </div>
         </form>
       </div>
     </div>
@@ -129,7 +127,7 @@
   </div>
 
 
-      <!-- Модальное окно -->
+  <!-- Модальное окно -->
   <div class="modal fade" id="formatModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -142,7 +140,8 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-          <button type="submit" name="submit_format" value="1" class="btn btn-danger" form="tokenForm">Форматировать</button>
+          <button type="submit" name="submit_format" value="1" class="btn btn-danger"
+            form="tokenForm">Форматировать</button>
         </div>
       </div>
     </div>
