@@ -10,7 +10,41 @@
 </head>
 
 <body class="p-4">
-
+<nav class="navbar navbar-expand-lg bg-body-tertiary">
+  <div class="container-fluid">
+    <!-- <a class="navbar-brand" href="#">Navbar</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button> -->
+    <div class="collapse navbar-collapse" id="navbarNavDropdown">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="{{ url_for('index_view') }}">Обновить</a>
+        </li>
+        <!-- <li class="nav-item">
+          <a class="nav-link" href="#">Features</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Pricing</a>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Dropdown link
+          </a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="#">Action</a></li>
+            <li><a class="dropdown-item" href="#">Another action</a></li>
+            <li><a class="dropdown-item" href="#">Something else here</a></li>
+          </ul>
+        </li> -->
+      </ul>
+    </div>
+        <form class="d-flex" role="search">
+      <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"/>
+      <button class="btn btn-outline-success" type="submit">Search</button>
+    </form>
+  </div>
+</nav>
   <div class="container">
     <h2 class="mb-4">Список токенов</h2>
 
@@ -46,7 +80,7 @@
     <div class="mt-4 p-4 col-lg-12 border rounded bg-light align-items-center">
       <h4>Выбран токен</h4>
       <div class="col-12  my-3">
-        <form id="tokenForm" method="POST">
+        <form id="tokenForm" method="POST" onkeydown="handleEnter(event)">
           {{ form.hidden_tag() }}
           <div class="input-group mb-3">
             {{ form.model.label(class="input-group-text") }}
@@ -66,11 +100,11 @@
             {{ form.new_pin_user.label(class="input-group-text") }}
             {{ form.new_pin_user(class="form-control me-2") }}
             <!-- {{ form.submit_format(class="btn btn-outline-secondary") }} -->
-            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#formatModal">
+            <button type="button" id="openFormatModalbtn" class="btn btn-danger">
               Форматировать
             </button>
           </div>
-          <div class="col=5 md=3">
+          <div id="text_flash" class="col=5 md=3">
             {% with messages = get_flashed_messages(with_categories=true) %}
               {% for category, message in messages %}
                   <div class="alert alert-{{ category }}">{{ message }}</div>
@@ -80,50 +114,6 @@
         </form>
       </div>
     </div>
-    <!-- Форма -->
-    <!-- <div class="mt-4 p-4 border rounded bg-light align-items-center">
-      <h4>Данные токена</h4>
-      <br>
-      <form id="tokenForm" class="align-items-center">
-        <div class="row align-items-center">
-          <div class="col-1">
-            <label for="model" class="form-label">Модель</label>
-          </div>
-          <div class="col-5">
-            <input type="text" class="form-control" id="model" readonly>
-          </div>
-          <div class="col-1">
-            <label for="min_pin_user" class="form-label">Мин ПИН</label>
-          </div>
-          <div class="col-5">
-            <input type="text" class="form-control" id="min_pin_user" readonly>
-          </div>
-        </div>
-        <div class="row mt-3 align-items-center">
-          <div class="col-1">
-            <label for="serial_num_raw" class="form-label">SN программный</label>
-          </div>
-          <div class="col-5">
-            <input type="text" class="form-control" id="serial_num_raw" readonly>
-          </div>
-          <div class="col-1">
-            <label for="serial_num" class="form-label">SN на корпусе</label>
-          </div>
-          <div class="col-5">
-            <input type="text" class="form-control" id="serial_num" readonly>
-          </div>
-        </div>
-
-        <div class="row mt-3 align-items-center">
-          <div class="col-1">
-            <label for="label" class="form-label">Имя</label>
-          </div>
-          <div class="col-5">
-            <input type="text" class="form-control" id="label">
-          </div>
-        </div>
-      </form>
-    </div> -->
   </div>
 
 
@@ -151,11 +141,6 @@
   <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
   <!-- <script src="{{ url_for('static', filename='js/popper/popper.min.js') }}"></script> -->
   <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
-
-
-  <!-- Скрипт для обработки клика по строке -->
-  <script src="{{ url_for('static', filename='js/row_click.js') }}"></script>
-
+  <script src="{{ url_for('static', filename='js/custom.js') }}"></script>
 </body>
-
 </html>
