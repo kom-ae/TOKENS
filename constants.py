@@ -67,3 +67,14 @@ MAX_LEN_PIN = 16
 
 # Пин код пользователя по умолчанию, для форматирования на хранение
 DEFAULT_USER_PIN = '12345678'
+
+# --------------- Параметры LDAP ---------------
+# Контроллер домена FQDN 
+DC_SERVER = os.getenv('LOGONSERVER')[2:]
+# Домен
+DOMAIN = os.getenv('USERDOMAIN')
+# Порт подключения к LDAP
+LDAP_PORT = 389 # LDAPS 636
+# OU поиска
+SEARCH_BASE = os.getenv('LDAP_SEARCH_BASE')
+# 
