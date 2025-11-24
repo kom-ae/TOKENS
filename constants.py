@@ -74,7 +74,10 @@ DC_SERVER = os.getenv('LOGONSERVER')[2:]
 # Домен
 DOMAIN = os.getenv('USERDOMAIN')
 # Порт подключения к LDAP
-LDAP_PORT = 389 # LDAPS 636
+LDAP_PORT = 389  # LDAPS 636
 # OU поиска
 SEARCH_BASE = os.getenv('LDAP_SEARCH_BASE')
-# 
+# Таймаут подключения к серверу, сек.
+LDAP_CON_TIMEOUT = 10
+# Таймаут выполнения запроса
+LDAP_SEARCH_TIMEOUT = 30
