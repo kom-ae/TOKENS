@@ -50,7 +50,12 @@ def get_users_from_ou_kerberos() -> List[Dict]:
 
         # Обработка результатов
         for entry in conn.entries:
-            user_data = {attr: entry[attr].value for attr in entry.entry_attributes}
+            # user_data = {attr: entry[attr].value for attr in entry.entry_attributes}
+            user_data = {
+                'cn': entry.cn.value.lower(),
+                'description': entry.description.value,
+                'sAMAccountName': entry.sAMAccountName.value
+                  }
             users.append(user_data)
 
         logger.info(f"Найдено {len(users)} пользователей")

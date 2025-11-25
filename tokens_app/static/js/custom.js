@@ -1,7 +1,58 @@
-﻿document.addEventListener('DOMContentLoaded', function () {
+﻿//поиск пользователей с формированием карточек
+$(document).ready(function () {
+      const $input = $('#search-input');
+      const $results = $('#results');
+
+      $input.on('input', function () {
+        const query = $input.val().trim();
+
+        if (query.length < 4) {
+          $results.empty();
+          return;
+        }
+
+        $.getJSON('/search', { q: query, limit: 5 }, function (data) {
+          $results.empty();
+
+          if (data.length === 0) {
+            $results.append('<p>Ничего не найдено</p>');
+            return;
+          }
+
+          data.forEach(function (item) {
+            $results.append(`
+              <div class="col">
+                <div class="card card-clickable" data-samaccountname="${item.sAMAccountName}">
+                  <div class="card-body">
+                    <h5 class="card-title">${item.cn}</h5>
+                    <p class="card-text">${item.description || 'Нет описания'}</p>
+                  </div>
+                  <div class="card-footer">${item.sAMAccountName}</div>
+                </div>
+              </div>
+            `);
+          assignClickHandlers();
+          });
+        });
+      });
+    });
+
+function assignClickHandlers() {
+  const cards = document.querySelectorAll('.card-clickable');
+  const form = document.getElementById('tokenForm');
+  cards.forEach(card => {
+    card.addEventListener('click', function() {
+      cards.forEach(c => c.classList.remove('text-bg-success'));
+      this.classList.add('text-bg-success');
+      const samaccountname = this.getAttribute('data-samaccountname');
+      form.label.value = samaccountname;
+    });
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function () {
   const rows = document.querySelectorAll('#dataTable tbody tr');
   const form = document.getElementById('tokenForm');
-
 
   rows.forEach(row => {
     row.addEventListener('click', function () {

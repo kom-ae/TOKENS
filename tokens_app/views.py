@@ -1,4 +1,4 @@
-from flask import flash, redirect, render_template, request, url_for
+from flask import flash, redirect, render_template, request, url_for, jsonify
 from sqlalchemy import insert, delete
 
 from constants import DEFAULT_USER_PIN
@@ -12,14 +12,38 @@ from .ldap import get_users_from_ou_kerberos
 from .models import Users_LDAP, Date_Load_Data
 
 
+@app.route('/search')
+def search():
+    query = request.args.get('q', '').strip()
+    limit = request.args.get('limit', 10, type=int)
+
+    if not query:
+        return jsonify()
+
+    results = Users_LDAP.query.where(
+        Users_LDAP.cn.like(f'{query}%') |
+        Users_LDAP.description.like(f'%{query}%')
+        ).limit(limit).all()
+
+    return jsonify([
+        {
+            'cn': user.cn.title(),
+            'description': user.description,
+            'sAMAccountName': user.sAMAccountName
+
+        } for user in results
+    ])
+
+
 @app.route('/load_ldap', methods=['GET'])
 def load_ldap():
     users = get_users_from_ou_kerberos()
 
     with db.engine.connect() as conn:
         conn.execute(delete(Date_Load_Data))
-        conn.execute(insert(Date_Load_Data).values({'count': len(users)}))
         conn.execute(delete(Users_LDAP))
+        conn.commit()
+        conn.execute(insert(Date_Load_Data).values({'count': len(users)}))
         conn.execute(insert(Users_LDAP).values(users))
         conn.commit()
     return redirect(url_for('index_view'))
@@ -58,7 +82,6 @@ def index_view():
                 )
             except FormatException as err:
                 flash(str(err), category='danger')
-            # tokens = get_tokens()
             return redirect(url_for('index_view'))
 
     return render_template('index.html', **content)

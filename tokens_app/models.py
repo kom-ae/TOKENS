@@ -1,6 +1,6 @@
 from datetime import datetime
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import Integer, String, DateTime
+from sqlalchemy import Integer, String, DateTime, func
 
 from tokens_app import db
 
@@ -25,5 +25,5 @@ class Date_Load_Data(db.Model):
     count: Mapped[int] = mapped_column(Integer)
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
-        default=datetime.now()
+        server_default=func.localtimestamp(),
     )
