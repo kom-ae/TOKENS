@@ -1,5 +1,6 @@
-from flask import flash, redirect, render_template, request, url_for, jsonify
-from sqlalchemy import insert, delete
+from flask import (Response, flash, jsonify, redirect, render_template,
+                   request, url_for)
+from sqlalchemy import delete, insert
 
 from constants import DEFAULT_USER_PIN
 from tokens.exceptions import FormatException
@@ -9,8 +10,34 @@ from tokens_app.forms import FormFormatToken
 
 from . import app, db
 from .ldap import get_users_from_ou_kerberos
-from .models import Users_LDAP, Date_Load_Data
+from .models import Date_Load_Data, Users_LDAP
 
+
+@app.route('/update_tokens')
+def update_tokens() -> Response:
+    """Получение токенов.
+
+    Возвращает информацию о токенах в JSON формате
+    для заполнения таблицы токенов без перезагрузки страницы.
+    """
+    tokens: dict[str, Token] = {}
+    try:
+        tokens = get_tokens()
+    except FileNotFoundError as err: 
+        flash(str(err), 'danger')
+        return redirect(url_for('index_view'))
+
+    return jsonify(
+        [
+            {
+                'model': token.model,
+                'serial_num_raw': token.serial_num_raw,
+                'serial_num': token.serial_num,
+                'label': token.label,
+                'min_pin_user': token.min_pin_user,
+            } for token in tokens.values()
+        ]
+    )
 
 @app.route('/search')
 def search():

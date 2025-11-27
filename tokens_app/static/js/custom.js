@@ -1,10 +1,44 @@
-﻿//поиск пользователей с формированием карточек
+﻿
+document.addEventListener('DOMContentLoaded', function () {
+  const rows = document.querySelectorAll('#dataTable tbody tr');
+  const form = document.getElementById('tokenForm');
+
+  rows.forEach(row => {
+    row.addEventListener('click', function () {
+      // Снимаем выделение
+      rows.forEach(r => r.classList.remove('table-active'));
+      // Выделяем текущую
+      this.classList.add('table-active');
+
+
+      // Получаем данные
+      const model = this.getAttribute('data-model');
+      const sn_raw = this.getAttribute('data-sn-raw');
+      const sn = this.getAttribute('data-sn');
+      const min_pin = this.getAttribute('data-min-pin');
+      const label = this.getAttribute('data-label');
+
+      // Заполняем форму
+      form.model.value = model;
+      form.serial_num_raw.value = sn_raw;
+      form.serial_num.value = sn;
+      form.min_pin_user.value = min_pin;
+      form.label.value = label;
+
+      //очищает div с сообщениями flask
+      const div = document.getElementById('text_flash');
+      div.replaceChildren();
+    });
+  });
+});
+
 $(document).ready(function () {
   const $input = $('#search-input');
   const $results = $('#results');
-  const $form = $('#tokenForm');
+  const $form = document.getElementById('tokenForm');
   const $tableTokenBody = $('#dataTable tbody');
   const $linkUpdate = $('#link_update');
+  const $rows = document.querySelectorAll('#dataTable tbody tr');
 
   // Функция для назначения обработчиков клика на карточки
   function assignCardClickHandlers() {
@@ -18,6 +52,7 @@ $(document).ready(function () {
     });
   }
 
+  //Обработчик клика по ссылке Обновить
   $linkUpdate.on('click', function (e) {
     e.preventDefault();
     $.getJSON('/update_tokens', function (data) {
@@ -29,20 +64,38 @@ $(document).ready(function () {
       data.forEach(function (item) {
         const row = `
             <tr data-model="${item.model}" data-sn="${item.serial_num}" data-sn-raw="${item.serial_num_raw}"
-            data-label="${item.label}" data-min-pin="${item.min_pin_user}">
+            data-label="${item.label}" data-min-pin="${item.min_pin_user}" class="table-row">
                 <td>${item.model}</td>
                 <td>${item.serial_num_raw}</td>
                 <td>${item.serial_num}</td>
                 <td>${item.label}</td>
                 <td>${item.min_pin_user}</td>
             </tr>`;
-        $tableBody.append(row);
+        $tableTokenBody.append(row);
       });
+      assignRowClickHandlers();
 
     }).fail(function () {
-      $tableBody.html('<tr><td colspan="4" class="text-center text-danger">Ошибка загрузки</td></tr>');
+      $tableTokenBody.html('<tr><td colspan="4" class="text-center text-danger">Ошибка загрузки</td></tr>');
     });
   });
+
+
+  function assignRowClickHandlers() {
+    $('.table-row').off('click').on('click', function () {
+      $form.model.value = $(this).data('model');
+      $form.serial_num_raw.value = $(this).data('sn-raw');
+      $form.serial_num.value = $(this).data('sn');
+      $form.min_pin_user.value = $(this).data('min-pin');
+      $form.label.value = $(this).data('label');
+
+      $('.table-row').removeClass('table-active');
+      $(this).addClass('table-active');
+
+      $('#text_flash').empty();
+    });
+
+  }
 
   $input.on('input', function () {
     const query = $input.val().trim();
@@ -81,38 +134,6 @@ $(document).ready(function () {
 });
 
 
-document.addEventListener('DOMContentLoaded', function () {
-  const rows = document.querySelectorAll('#dataTable tbody tr');
-  const form = document.getElementById('tokenForm');
-
-  rows.forEach(row => {
-    row.addEventListener('click', function () {
-      // Снимаем выделение
-      rows.forEach(r => r.classList.remove('table-active'));
-      // Выделяем текущую
-      this.classList.add('table-active');
-
-
-      // Получаем данные
-      const model = this.getAttribute('data-model');
-      const sn_raw = this.getAttribute('data-sn-raw');
-      const sn = this.getAttribute('data-sn');
-      const min_pin = this.getAttribute('data-min-pin');
-      const label = this.getAttribute('data-label');
-
-      // Заполняем форму
-      form.model.value = model;
-      form.serial_num_raw.value = sn_raw;
-      form.serial_num.value = sn;
-      form.min_pin_user.value = min_pin;
-      form.label.value = label;
-
-      //очищает div с сообщениями flask
-      const div = document.getElementById('text_flash');
-      div.replaceChildren();
-    });
-  });
-});
 
 //запрещает Enter в полях
 function handleEnter(event) {
