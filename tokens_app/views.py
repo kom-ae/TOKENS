@@ -23,7 +23,7 @@ def update_tokens() -> Response:
     tokens: dict[str, Token] = {}
     try:
         tokens = get_tokens()
-    except FileNotFoundError as err: 
+    except FileNotFoundError as err:
         flash(str(err), 'danger')
         return redirect(url_for('index_view'))
 
@@ -39,6 +39,7 @@ def update_tokens() -> Response:
         ]
     )
 
+
 @app.route('/search')
 def search():
     query = request.args.get('q', '').strip()
@@ -48,8 +49,9 @@ def search():
         return jsonify()
 
     results = Users_LDAP.query.where(
-        Users_LDAP.cn.like(f'{query}%') |
-        Users_LDAP.description.like(f'%{query}%')
+        Users_LDAP.cn.like(f'{query}%'.lower()) |
+        Users_LDAP.description.like(f'%{query}%') |
+        Users_LDAP.sAMAccountName.like(f'%{query}%')
         ).limit(limit).all()
 
     return jsonify([
