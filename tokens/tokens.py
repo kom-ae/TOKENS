@@ -98,7 +98,8 @@ class RutokenLite(Rutoken):
         try:
             return subprocess.run(
                 f'{self.rtadmin} format --repair --new-so-pin {PIN_ADMIN} \
-                    --new-user-pin {user_pin} -l {label} \
+                    --new-user-pin {user_pin} \
+                    {f'-l {label}' if label else ''} \
                     --min-so-pin {MIN_SO_PIN} --min-user-pin {MIN_USER_PIN} \
                     --max-user-pin-retry-count {MAX_PIN_COUNT_USER} \
                     --max-so-pin-retry-count {MAX_PIN_COUNT_SO} \
@@ -167,7 +168,7 @@ class JaCartaLaser(Token):
             FormatException(str(err))
         if self.serial_num_raw != str(info.serialNumber).strip():
             raise FormatException(('Устройство с серийным номером '
-                              f'{self.serial_num_raw} извлечено.'))
+                                   f'{self.serial_num_raw} извлечено.'))
         session = pkcs11.openSession(self.slot, CKF_RW_SESSION)
         self.__set_current_pin(session)
         # Закрываем сессию для инициализации токена.
