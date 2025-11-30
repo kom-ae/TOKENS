@@ -98,8 +98,7 @@ class RutokenLite(Rutoken):
         try:
             return subprocess.run(
                 f'{self.rtadmin} format --repair --new-so-pin {PIN_ADMIN} \
-                    --new-user-pin {user_pin} \
-                    {f'-l {label}' if label else ''} \
+                    --new-user-pin {user_pin} -l "{label}" \
                     --min-so-pin {MIN_SO_PIN} --min-user-pin {MIN_USER_PIN} \
                     --max-user-pin-retry-count {MAX_PIN_COUNT_USER} \
                     --max-so-pin-retry-count {MAX_PIN_COUNT_SO} \

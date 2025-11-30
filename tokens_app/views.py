@@ -1,3 +1,4 @@
+import threading
 from flask import (Response, flash, jsonify, redirect, render_template,
                    request, url_for)
 from sqlalchemy import delete, insert
@@ -11,6 +12,8 @@ from tokens_app.forms import FormFormatToken
 from . import app, db
 from .ldap import get_users_from_ou_kerberos
 from .models import Date_Load_Data, Users_LDAP
+
+task = {}
 
 
 @app.route('/update_tokens')
@@ -52,7 +55,7 @@ def search():
         Users_LDAP.cn.like(f'{query}%'.lower()) |
         Users_LDAP.description.like(f'%{query}%') |
         Users_LDAP.sAMAccountName.like(f'%{query}%')
-        ).limit(limit).all()
+    ).limit(limit).all()
 
     return jsonify([
         {
@@ -76,6 +79,74 @@ def load_ldap():
         conn.execute(insert(Users_LDAP).values(users))
         conn.commit()
     return redirect(url_for('index_view'))
+
+
+@app.route('/start_format', methods=['POST'])
+def start_format() -> Response:
+    """Форматирование токена в отдельном потоке."""
+
+    task_id = request.form.get('task_id')
+    tokens: dict[str, Token] = {}
+    try:
+        tokens = get_tokens()
+    except FileNotFoundError as err:
+        return jsonify({'status': 'error', 'error': str(err)})
+
+    sn_raw: str = request.form.get('serial_num_raw')
+    if sn_raw not in tokens:
+        return jsonify({
+            'status': 'error',
+            'error': f'Токен с sn_raw={sn_raw} не подключен.'
+        })
+
+    form = FormFormatToken()
+    form.model.data = request.form.get('model', '')
+    form.min_pin_user.data = request.form.get('min_pin_user', '')
+    form.serial_num_raw.data = request.form.get('serial_num_raw', '')
+    form.serial_num.data = request.form.get('serial_num', '')
+    form.label.data = request.form.get('label', '')
+    form.new_pin_user.data = request.form.get('new_pin_user', '')
+
+    if form.validate_on_submit():
+        user_pin: str = (form.new_pin_user.data
+                         if form.new_pin_user.data else DEFAULT_USER_PIN)
+        label: str = form.label.data
+        token = tokens[sn_raw]
+
+        threading.Thread(target=thread_format, args=(
+            token,
+            user_pin,
+            label,
+            task_id,
+        )).start()
+
+        return jsonify({'status': 'started', 'task_id': task_id})
+
+
+def thread_format(
+        token: Token,
+        user_pin: str,
+        label: str,
+        task_id: str
+) -> Response:
+    try:
+        token.format(user_pin=user_pin, label=label)
+        task[task_id] = {'status': 'completed', 'sn_raw': token.serial_num_raw}
+    except FormatException as err:
+        task[task_id] = {
+            'status': 'error',
+            'error': f'Ошибка форматирования: {str(err)}'
+        }
+
+
+@app.route('/check_status/<task_id>')
+def check_status(task_id: str):
+    """Проверяет статус процесса форматирования токена."""
+    if task_id in task:
+        if task[task_id]['status'] == 'completed':
+            return jsonify(task.pop(task_id))
+        return jsonify(task[task_id])
+    return jsonify({'status': 'not_found'})
 
 
 @app.route('/', methods=['GET', 'POST'])

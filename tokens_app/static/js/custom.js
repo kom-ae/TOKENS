@@ -58,21 +58,39 @@ $(document).ready(function () {
     $.getJSON('/update_tokens', function (data) {
       $tableTokenBody.empty();
       if (data.length === 0) {
-        $tableBody.append('<tr><td colspan="4" class="text-center">Нет данных</td></tr>');
+        $tableTokenBody.append('<tr><td colspan="5" class="text-center">Токены не обнаружены</td></tr>');
         return;
       }
-      data.forEach(function (item) {
-        const row = `
-            <tr data-model="${item.model}" data-sn="${item.serial_num}" data-sn-raw="${item.serial_num_raw}"
-            data-label="${item.label}" data-min-pin="${item.min_pin_user}" class="table-row">
-                <td>${item.model}</td>
-                <td>${item.serial_num_raw}</td>
-                <td>${item.serial_num}</td>
-                <td>${item.label}</td>
-                <td>${item.min_pin_user}</td>
-            </tr>`;
-        $tableTokenBody.append(row);
-      });
+      // data.forEach(function (item) {
+      //   const row = `
+      //       <tr data-model="${item.model}" data-sn="${item.serial_num}" data-sn-raw="${item.serial_num_raw}"
+      //       data-label="${item.label}" data-min-pin="${item.min_pin_user}" class="table-row">
+      //           <td>${item.model}</td>
+      //           <td>${item.serial_num_raw}</td>
+      //           <td>${item.serial_num}</td>
+      //           <td>${item.label}</td>
+      //           <td>${item.min_pin_user}</td>
+      //       </tr>`;
+      //   $tableTokenBody.append(row);
+      // });
+      data.forEach(function(item) {
+        const $tr = $('<tr>')
+            .addClass('table-row')
+            .attr('data-model', item.model)
+            .attr('data-sn', item.serial_num)
+            .attr('data-sn-raw', item.serial_num_raw)
+            .attr('data-label', item.label)
+            .attr('data-min-pin', item.min_pin_user);
+
+        // Заполняем ячейки безопасным текстом
+        $('<td>').text(item.model).appendTo($tr);
+        $('<td>').text(item.serial_num_raw).appendTo($tr);
+        $('<td>').text(item.serial_num).appendTo($tr);
+        $('<td>').text(item.label).appendTo($tr);
+        $('<td>').text(item.min_pin_user).appendTo($tr);
+
+    $tableTokenBody.append($tr);
+});
       assignRowClickHandlers();
 
     }).fail(function () {
@@ -131,6 +149,82 @@ $(document).ready(function () {
       assignCardClickHandlers();
     });
   });
+
+  $('#submit_format').on('click', function () {
+    let taskId = 'task_' + Date.now(); // Уникальный ID задачи
+    // Закрываем модальное окно
+    $('#formatModal').modal('hide');
+
+    let formData = $('#tokenForm').serialize();
+    formData += '&task_id=' + taskId;
+
+    $('#progressText').text('Пожалуйста, подождите').removeClass('text-danger');
+    $('#text_flash').empty();
+    
+    // Отправляем запрос на запуск задачи
+    $.post('/start_format', formData, function (response) {
+      if (response.status === 'started') {
+        // Показываем прогресс‑бар
+        $('#progressContainer').removeClass('d-none');
+        // Запускаем мониторинг прогресса
+        monitorProgress(taskId);
+      } else if(response.status === 'error') {
+        $('#progressContainer').addClass('d-none');
+        const newDiv = document.createElement('div');
+        newDiv.className = 'alert alert-danger';
+        newDiv.textContent = response.error;
+        $('#text_flash').prepend(newDiv);
+      }
+      
+    });
+  });
+
+  function monitorProgress(id) {
+    const checkInterval = 500; // Проверка каждые 500 мс
+    const newDiv = document.createElement('div');
+    newDiv.className = 'alert alert-danger';
+
+    function checkStatus() {
+      $.get('/check_status/' + id, function (data) {
+        if (data.status === 'completed') {
+          // Задача завершена
+          $('#progressText').text('Готово!');
+
+          setTimeout(function () {
+            $('#progressContainer').addClass('d-none');
+          }, 2000);
+          
+          newDiv.className = 'alert alert-success';
+          newDiv.textContent = `Токен sn_raw ${data.sn_raw} отформатирован.`;
+          $('#text_flash').prepend(newDiv);
+          $('#link_update').click();
+        
+        } else if (data.status === 'error') {
+        
+          $('#progressText').text(data.error).addClass('text-danger');
+          $('#progressContainer').addClass('d-none');
+          // setTimeout(function () {
+          //   $('#progressContainer').addClass('d-none');
+          // }, 2000);
+        
+          newDiv.textContent = data.error;
+          $('#text_flash').prepend(newDiv);
+        
+        } else {
+          // Продолжаем проверять статус (бар анимирован)
+          setTimeout(checkStatus, checkInterval);
+        }
+      }).fail(function () {
+        // Ошибка при запросе статуса
+        $('#progressText').text('Ошибка').addClass('text-danger');
+
+          newDiv.textContent = 'Ошибка.';
+          $('#text_flash').prepend(newDiv);
+      });
+    }
+
+    checkStatus(); // Первый запрос
+  }
 });
 
 

@@ -13,9 +13,9 @@
   <div class="container">
     <div class="row g-0">
 
-        <small class="text-center text-muted">
-          Загружено {{ date_load.count }} пользователей, в {{ date_load.created_at.strftime('%H:%M:%S %d.%m.%Y') }}.
-        </small>
+      <small class="text-center text-muted">
+        Загружено {{ date_load.count }} пользователей, в {{ date_load.created_at.strftime('%H:%M:%S %d.%m.%Y') }}.
+      </small>
 
     </div>
     <nav class="navbar navbar-expand-lg bg-body-tertiary md-4">
@@ -48,11 +48,11 @@
             </li>
           </ul>
         </div>
-        <input type="text" id="search-input" class="flex-grow-1 form-control ms-3" placeholder="Введите запрос...">
+        <input type="text" id="search-input" class=" form-control ms-3" placeholder="Введите запрос...">
       </div>
     </nav>
     <div class="my-3">
-      <div class="row row-cols-5"  id="results">
+      <div class="row row-cols-5" id="results">
       </div>
     </div>
     <h4 class="mb-4">Список токенов</h4>
@@ -68,6 +68,11 @@
           </tr>
         </thead>
         <tbody>
+          {% if not tokens %}
+          <tr>
+            <td colspan="5" class="text-center">Токены не обнаружены</td>
+          </tr>
+          {% endif %}
           {% for sn, token in tokens.items() %}
           <tr data-model="{{ token.model }}" data-sn="{{ token.serial_num }}" data-sn-raw="{{ token.serial_num_raw }}"
             data-label="{{ token.label }}" data-min-pin="{{ token.min_pin_user }}">
@@ -78,6 +83,7 @@
             <td>{{ token.min_pin_user }}</td>
           </tr>
           {% endfor %}
+
         </tbody>
       </table>
     </div>
@@ -132,11 +138,23 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-          <button type="submit" name="submit_format" value="1" class="btn btn-danger"
-            form="tokenForm">Форматировать</button>
+          <!-- <button type="submit" name="submit_format" value="1" class="btn btn-danger"
+            form="tokenForm">Форматировать</button> -->
+          <button type="submit" id="submit_format" class="btn btn-danger">Форматировать</button>
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- Анимированный прогресс-бар (Bootstrap) -->
+  <div id="progressContainer" class="d-none mt-3">
+    <div class="progress" style="height: 25px;">
+      <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" role="progressbar"
+        style="width: 100%;" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
+        Идёт обработка...
+      </div>
+    </div>
+    <p id="progressText" class=" mt-2 text-center">Пожалуйста, подождите</p>
   </div>
 
   <!-- Bootstrap JS и jQuery -->
