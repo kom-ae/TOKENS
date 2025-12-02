@@ -123,10 +123,14 @@ def start_format() -> Response:
         return jsonify({'status': 'started', 'task_id': task_id})
     else:
         message_errors = []
-        for errors in form.errors.items():
+        for field, errors in form.errors.items():
+            field_msg = getattr(form, field, field).label.text
             for error in errors:
-                message_errors.append(error)
-        return jsonify({'error': message_errors})
+                message_errors.append(f'{field_msg}: {error.rstrip('.')}.')
+        return jsonify({
+            'status': 'error',
+            'error': message_errors
+            })
 
 
 def thread_format(

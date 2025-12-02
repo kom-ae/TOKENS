@@ -2,13 +2,14 @@
 document.addEventListener('DOMContentLoaded', function () {
   const rows = document.querySelectorAll('#dataTable tbody tr');
   const form = document.getElementById('tokenForm');
-
+  
   rows.forEach(row => {
     row.addEventListener('click', function () {
       // Снимаем выделение
       rows.forEach(r => r.classList.remove('table-active'));
       // Выделяем текущую
       this.classList.add('table-active');
+      var selCard = document.querySelector('.card-clickable.text-bg-success')
 
 
       // Получаем данные
@@ -23,8 +24,9 @@ document.addEventListener('DOMContentLoaded', function () {
       form.serial_num_raw.value = sn_raw;
       form.serial_num.value = sn;
       form.min_pin_user.value = min_pin;
-      form.label.value = label;
-
+      if (!selCard) {
+        form.label.value = label;
+      }
       //очищает div с сообщениями flask
       const div = document.getElementById('text_flash');
       div.replaceChildren();
@@ -73,14 +75,14 @@ $(document).ready(function () {
       //       </tr>`;
       //   $tableTokenBody.append(row);
       // });
-      data.forEach(function(item) {
+      data.forEach(function (item) {
         const $tr = $('<tr>')
-            .addClass('table-row')
-            .attr('data-model', item.model)
-            .attr('data-sn', item.serial_num)
-            .attr('data-sn-raw', item.serial_num_raw)
-            .attr('data-label', item.label)
-            .attr('data-min-pin', item.min_pin_user);
+          .addClass('table-row')
+          .attr('data-model', item.model)
+          .attr('data-sn', item.serial_num)
+          .attr('data-sn-raw', item.serial_num_raw)
+          .attr('data-label', item.label)
+          .attr('data-min-pin', item.min_pin_user);
 
         // Заполняем ячейки безопасным текстом
         $('<td>').text(item.model).appendTo($tr);
@@ -89,8 +91,8 @@ $(document).ready(function () {
         $('<td>').text(item.label).appendTo($tr);
         $('<td>').text(item.min_pin_user).appendTo($tr);
 
-    $tableTokenBody.append($tr);
-});
+        $tableTokenBody.append($tr);
+      });
       assignRowClickHandlers();
 
     }).fail(function () {
@@ -101,12 +103,15 @@ $(document).ready(function () {
 
   function assignRowClickHandlers() {
     $('.table-row').off('click').on('click', function () {
+      var $target = $('.card-clickable.text-bg-success')
+
       $form.model.value = $(this).data('model');
       $form.serial_num_raw.value = $(this).data('sn-raw');
       $form.serial_num.value = $(this).data('sn');
       $form.min_pin_user.value = $(this).data('min-pin');
-      $form.label.value = $(this).data('label');
-
+      if (!$target.length) {
+        $form.label.value = $(this).data('label');
+      }
       $('.table-row').removeClass('table-active');
       $(this).addClass('table-active');
 
@@ -160,7 +165,7 @@ $(document).ready(function () {
 
     $('#progressText').text('Пожалуйста, подождите').removeClass('text-danger');
     $('#text_flash').empty();
-    
+
     // Отправляем запрос на запуск задачи
     $.post('/start_format', formData, function (response) {
       if (response.status === 'started') {
@@ -168,14 +173,14 @@ $(document).ready(function () {
         $('#progressContainer').removeClass('d-none');
         // Запускаем мониторинг прогресса
         monitorProgress(taskId);
-      } else if(response.status === 'error') {
+      } else if (response.status === 'error') {
         $('#progressContainer').addClass('d-none');
         const newDiv = document.createElement('div');
         newDiv.className = 'alert alert-danger';
-        newDiv.textContent = response.error;
+        newDiv.innerHTML = response.error.join('<br>');
         $('#text_flash').prepend(newDiv);
       }
-      
+
     });
   });
 
@@ -190,26 +195,26 @@ $(document).ready(function () {
           // Задача завершена
           $('#progressText').text('Готово!');
 
-          setTimeout(function () {
-            $('#progressContainer').addClass('d-none');
-          }, 2000);
-          
+          // setTimeout(function () {
+          //   $('#progressContainer').addClass('d-none');
+          // }, 2000);
+
           newDiv.className = 'alert alert-success';
           newDiv.textContent = `Токен sn_raw ${data.sn_raw} отформатирован.`;
           $('#text_flash').prepend(newDiv);
           $('#link_update').click();
-        
+
         } else if (data.status === 'error') {
-        
+
           $('#progressText').text(data.error).addClass('text-danger');
           $('#progressContainer').addClass('d-none');
           // setTimeout(function () {
           //   $('#progressContainer').addClass('d-none');
           // }, 2000);
-        
+
           newDiv.textContent = data.error;
           $('#text_flash').prepend(newDiv);
-        
+
         } else {
           // Продолжаем проверять статус (бар анимирован)
           setTimeout(checkStatus, checkInterval);
@@ -218,8 +223,8 @@ $(document).ready(function () {
         // Ошибка при запросе статуса
         $('#progressText').text('Ошибка').addClass('text-danger');
 
-          newDiv.textContent = 'Ошибка.';
-          $('#text_flash').prepend(newDiv);
+        newDiv.textContent = 'Ошибка.';
+        $('#text_flash').prepend(newDiv);
       });
     }
 

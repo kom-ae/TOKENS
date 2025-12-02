@@ -29,6 +29,14 @@ class FormFormatToken(FlaskForm):
     )
     new_pin_user = StringField(
         label='Новый pin пользователя',
-        validators=[Length(min=MIN_USER_PIN, max=MAX_LEN_PIN), Optional()]
+        validators=[
+            Length(
+                message=(f'Длина должна быть от {MIN_USER_PIN} до '
+                         f'{MAX_LEN_PIN} символов'),
+                min=MIN_USER_PIN,
+                max=MAX_LEN_PIN
+            ),
+            Optional()
+        ]
     )
     submit_format = SubmitField(label='Форматировать')
