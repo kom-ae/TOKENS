@@ -66,7 +66,7 @@ class Rutoken(Token):
                 f'{self.rtadmin} -f -a {PIN_ADMIN} -u {user_pin} \
                     -p {MODE_CHANGE_PIN} -M {MIN_SO_PIN} -m {MIN_USER_PIN} \
                     -R {MAX_PIN_COUNT_SO} -r {MAX_PIN_COUNT_USER} \
-                    -D {label} -q -z {self.lib_path}',
+                    -D "{label}" -q -z {self.lib_path}',
                 capture_output=True,
                 text=True,
                 check=True
@@ -127,7 +127,7 @@ class RutokenECP(Rutoken):
         try:
             return subprocess.run(
                 f'{self.rtadmin} format --repair --new-so-pin {PIN_ADMIN} \
-                    --new-user-pin {user_pin} -l {label} \
+                    --new-user-pin {user_pin} -l "{label}" \
                     --min-so-pin {MIN_SO_PIN} --min-user-pin {MIN_USER_PIN} \
                     --max-user-pin-retry-count {MAX_PIN_COUNT_USER} \
                     --max-so-pin-retry-count {MAX_PIN_COUNT_SO} \

@@ -121,6 +121,12 @@ def start_format() -> Response:
         )).start()
 
         return jsonify({'status': 'started', 'task_id': task_id})
+    else:
+        message_errors = []
+        for errors in form.errors.items():
+            for error in errors:
+                message_errors.append(error)
+        return jsonify({'error': message_errors})
 
 
 def thread_format(
