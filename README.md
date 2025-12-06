@@ -1,4 +1,11 @@
+![Python](https://img.shields.io/badge/Python-3.12-blue?logo=python&logoColor=white)
+![Flask](https://img.shields.io/badge/Flask-3.1-blue?logo=flask&logoColor=white)
+![sqlalchemy](https://img.shields.io/badge/SQLAlchemy-2.0-blue?logo=sqlalchemy&logoColor=white)
+![sqlite](https://img.shields.io/badge/SQLite-3.x-blue?logo=sqlite&logoColor=white)
+
+
 # TOKENS
+
 Автоматизация рутинных процессов по выдаче внутренних подписей предприятия.
 
 Для автоматизации процессов при выдаче УНЭП, выполняет форматирование токенов различных производителей.
