@@ -34,7 +34,7 @@ def get_users_from_ou_kerberos() -> List[Dict]:
         )
 
         # Проверяем, кто мы
-        print("Аутентифицирован как:", conn.extend.standard.who_am_i())
+        # print("Аутентифицирован как:", conn.extend.standard.who_am_i())
 
         conn.search(
             search_base=SEARCH_BASE,
