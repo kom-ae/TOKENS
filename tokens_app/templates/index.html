@@ -60,11 +60,11 @@
       <table class="table table-striped table-hover" id="dataTable">
         <thead class="table-dark">
           <tr>
-            <th>Token</th>
-            <th>SN_raw</th>
-            <th>SN</th>
-            <th>Label</th>
-            <th>minPin</th>
+            <th>Модель</th>
+            <th>SN программный</th>
+            <th>SN на корпусе</th>
+            <th>Имя токена</th>
+            <th>Min pin</th>
           </tr>
         </thead>
         <tbody>
@@ -96,12 +96,12 @@
           <div class="input-group mb-3">
             {{ form.model.label(class="input-group-text") }}
             {{ form.model(readonly=True, class="form-control me-2") }}
-            {{ form.min_pin_user.label(class="input-group-text") }}
-            {{ form.min_pin_user(class="form-control me-2") }}
             {{ form.serial_num_raw.label(class="input-group-text") }}
             {{ form.serial_num_raw(class="form-control me-2") }}
             {{ form.serial_num.label(class="input-group-text") }}
             {{ form.serial_num(class="form-control") }}
+            {{ form.min_pin_user.label(class="input-group-text") }}
+            {{ form.min_pin_user(class="form-control me-2") }}
           </div>
           <div class="col-5 input-group mb-3">
             {{ form.label.label(class="input-group-text") }}

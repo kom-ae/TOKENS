@@ -185,19 +185,16 @@ $(document).ready(function () {
   });
 
   function monitorProgress(id) {
-    const checkInterval = 500; // Проверка каждые 500 мс
+    const checkInterval = 500;
     const newDiv = document.createElement('div');
     newDiv.className = 'alert alert-danger';
 
-    function checkStatus() {
+    function checkStatus(iter = 1) {
       $.get('/check_status/' + id, function (data) {
         if (data.status === 'completed') {
-          // Задача завершена
-          $('#progressText').text('Готово!');
 
-          // setTimeout(function () {
-          //   $('#progressContainer').addClass('d-none');
-          // }, 2000);
+          $('#progressText').text('Готово!');
+          $('#progressContainer').addClass('d-none');
 
           newDiv.className = 'alert alert-success';
           newDiv.textContent = `Токен sn_raw ${data.sn_raw} отформатирован.`;
@@ -208,16 +205,20 @@ $(document).ready(function () {
 
           $('#progressText').text(data.error).addClass('text-danger');
           $('#progressContainer').addClass('d-none');
-          // setTimeout(function () {
-          //   $('#progressContainer').addClass('d-none');
-          // }, 2000);
 
           newDiv.textContent = data.error;
           $('#text_flash').prepend(newDiv);
 
+        } else if (iter*checkInterval/60000>=1) {
+
+          $('#progressContainer').addClass('d-none');
+          newDiv.textContent = 'Ошибка при форматировании, не меняется статус';
+          $('#text_flash').prepend(newDiv);
+
         } else {
-          // Продолжаем проверять статус (бар анимирован)
-          setTimeout(checkStatus, checkInterval);
+
+          setTimeout(checkStatus, checkInterval, iter+1);
+
         }
       }).fail(function () {
         // Ошибка при запросе статуса
