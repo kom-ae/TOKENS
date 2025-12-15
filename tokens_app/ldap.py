@@ -1,15 +1,15 @@
-from typing import List, Dict, Optional
-from ldap3 import Server, Connection, SASL, GSSAPI
-from ldap3.core.exceptions import LDAPBindError, LDAPSocketOpenError
-# import winkerberos as kerberos
 import logging
+from typing import Dict, List
 
+from ldap3 import GSSAPI, SASL, Connection, Server
+from ldap3.core.exceptions import LDAPBindError, LDAPSocketOpenError
 
-from constants import DC_SERVER, DOMAIN, LDAP_PORT, SEARCH_BASE, LDAP_CON_TIMEOUT, LDAP_SEARCH_TIMEOUT
+from constants import (DC_SERVER, LDAP_CON_TIMEOUT, LDAP_PORT,
+                       LDAP_SEARCH_TIMEOUT, SEARCH_BASE)
 
-# Настройка логирования
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
 
 def get_users_from_ou_kerberos() -> List[Dict]:
     """Получить пользователей из OU через Kerberos‑аутентификацию."""
@@ -33,9 +33,6 @@ def get_users_from_ou_kerberos() -> List[Dict]:
 
         )
 
-        # Проверяем, кто мы
-        # print("Аутентифицирован как:", conn.extend.standard.who_am_i())
-
         conn.search(
             search_base=SEARCH_BASE,
             search_filter='(objectClass=user)',
@@ -45,28 +42,28 @@ def get_users_from_ou_kerberos() -> List[Dict]:
         )
 
         if conn.result['result'] != 0:
-            logger.error(f"Ошибка LDAP: {conn.result['description']} ({conn.result['message']})")
+            logger.error((f'Ошибка LDAP: {conn.result['description']}'
+                          f'{conn.result['message']}'))
             return users
 
-        # Обработка результатов
         for entry in conn.entries:
-            # user_data = {attr: entry[attr].value for attr in entry.entry_attributes}
             user_data = {
                 'cn': entry.cn.value.lower(),
                 'description': entry.description.value,
                 'sAMAccountName': entry.sAMAccountName.value
-                  }
+            }
             users.append(user_data)
 
-        logger.info(f"Найдено {len(users)} пользователей")
+        logger.info(f'Найдено {len(users)} пользователей')
 
     except LDAPSocketOpenError as e:
-        logger.error(f"Не удалось подключиться к серверу: {e}")
+        logger.error(f'Не удалось подключиться к серверу: {e}')
     except LDAPBindError as e:
-        logger.error(f"Ошибка аутентификации Kerberos: {e}")
-        logger.error("Проверьте: 1) наличие Kerberos-билета (klist); 2) корректность realm")
-    # except gssapi.exceptions.GSSError as e:
-    #     logger.error(f"Ошибка GSSAPI: {e}")
+        logger.error(f'Ошибка аутентификации Kerberos: {e}')
+        logger.error(
+            ('Проверьте: 1) наличие Kerberos-билета (klist); '
+             '2) корректность realm')
+        )
     except Exception as e:
         logger.error(f"Неожиданная ошибка: {type(e).__name__}: {e}")
 

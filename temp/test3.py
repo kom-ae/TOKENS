@@ -489,7 +489,7 @@ def main():
         print(f'object-handle={handle}')
 
         template2 = {
-            CKA_VALUE : bytes
+            CKA_VALUE: bytes
         }
 
         values = pkcs11.GetAttributeValue(session, handle, template2)

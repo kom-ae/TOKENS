@@ -7,21 +7,22 @@ from constants import MAX_LEN_LABEL, MAX_LEN_PIN, MIN_USER_PIN
 
 class FormFormatToken(FlaskForm):
     """Форма с данными для форматирования токена."""
+
     model = StringField(
         label='Модель',
         render_kw={'readonly': True},
-        # validators=[DataRequired()]
+        validators=[DataRequired()]
     )
     min_pin_user = StringField(label='Min pin', render_kw={'readonly': True})
     serial_num_raw = StringField(
         label='SN программный',
         render_kw={'readonly': True},
-        # validators=[DataRequired()]
+        validators=[DataRequired()]
     )
     serial_num = StringField(
         label='SN на корпусе',
         render_kw={'readonly': True},
-        # validators=[DataRequired()]
+        validators=[DataRequired()]
     )
     label = StringField(
         label='Имя токена',

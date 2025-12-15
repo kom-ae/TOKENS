@@ -23,9 +23,6 @@ TOKEN_CONF = {
     'Rutoken ECP': {
         'rtadmin_path': BASE_DIR.joinpath(r'utils\rtadmin\rtAdmin_3.1.exe'),
     },
-    # 'JaCarta Laser': {
-    #     'rtadmin_path': None),
-    # }
 }
 
 # Черный список серийных номеров токенов

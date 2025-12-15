@@ -6,15 +6,18 @@ from .tokens import Token, tokens_classes
 
 
 def get_slots(pkcs11: PyKCS11Lib) -> list:
+    """Вернуть номера слотов с токенами."""
     return pkcs11.getSlotList(tokenPresent=True)
 
 
 def get_pkcs(lib: str) -> PyKCS11Lib:
+    """Вернуть объект с загруженной библиотекой, для работы с токеном."""
     pkcs11 = PyKCS11Lib()
     return pkcs11.load(lib)
 
 
-def get_tokens():
+def get_tokens() -> dict[str, Token]:
+    """Вернуть подключенные токены."""
     tokens: dict[str, Token] = {}
     for lib in LIST_LIBS:
         if not Path(lib).is_file():
@@ -40,52 +43,3 @@ def get_tokens():
                 )
         pkcs11.unload()
     return tokens
-
-
-# def open_session(slot: int, pkcs11: PyKCS11Lib,  flags: int = 0) -> PyKCS11.Session:
-#     return pkcs11.openSession(slot, flags)
-
-
-# def session_login_admin(session: PyKCS11.Session) -> None:
-#     for pin in LIST_PIN_ADMIN:
-#         try:
-#             session.login(pin, CKU_SO)
-#             return pin
-#         except PyKCS11Error:
-#             continue
-#     # session.closeSession()
-#     return False
-
-
-# def session_login_user(session: PyKCS11.Session) -> None:
-#     try:
-#         session.login(TEMP_USER_PIN, CKU_USER)
-#     except PyKCS11Error:
-#         print('Логин пользователя не прошел!')
-#     except Exception as err:
-#         print(str(err))
-
-
-# def set_all_pin(session: PyKCS11.Session, old_pin: str) -> None:
-#     try:
-#         # проверить значение на минимум 6 символов
-#         session.initPin(TEMP_USER_PIN)
-#     except PyKCS11Error as err:
-#         print(str(err))
-#     try:
-#         session.setPin(old_pin, PIN_ADMIN)
-#     except PyKCS11Error as err:
-#         print(str(err))
-
-
-# def session_logout_close(session: PyKCS11.Session) -> None:
-
-#     try:
-#         info = session.getSessionInfo()
-#     except PyKCS11Error as err:
-#         if err.args[0] in (CKR_SESSION_HANDLE_INVALID, CKR_SESSION_CLOSED):
-#             print('Сессия уже закрыта')
-#         return
-#     if info.state not in (CKS_RO_PUBLIC_SESSION, CKS_RW_PUBLIC_SESSION):
-#         session.logout()
-#     session.closeSession()
