@@ -11,7 +11,7 @@ from tokens_app.forms import FormFormatToken
 
 from . import app, db
 from .ldap import get_users_from_ou_kerberos
-from .models import Date_Load_Data, Users_LDAP
+from .models import DateLoadData, UsersLdap
 
 task = {}
 
@@ -51,10 +51,10 @@ def search():
     if not query:
         return jsonify()
 
-    results = Users_LDAP.query.where(
-        Users_LDAP.cn.like(f'{query}%'.lower()) |
-        Users_LDAP.description.like(f'%{query}%') |
-        Users_LDAP.sAMAccountName.like(f'%{query}%')
+    results = UsersLdap.query.where(
+        UsersLdap.cn.like(f'{query}%'.lower()) |
+        UsersLdap.description.like(f'%{query}%') |
+        UsersLdap.sAMAccountName.like(f'%{query}%')
     ).limit(limit).all()
 
     return jsonify([
@@ -72,11 +72,11 @@ def load_ldap():
     users = get_users_from_ou_kerberos()
 
     with db.engine.connect() as conn:
-        conn.execute(delete(Date_Load_Data))
-        conn.execute(delete(Users_LDAP))
+        conn.execute(delete(DateLoadData))
+        conn.execute(delete(UsersLdap))
         conn.commit()
-        conn.execute(insert(Date_Load_Data).values({'count': len(users)}))
-        conn.execute(insert(Users_LDAP).values(users))
+        conn.execute(insert(DateLoadData).values({'count': len(users)}))
+        conn.execute(insert(UsersLdap).values(users))
         conn.commit()
     return redirect(url_for('index_view'))
 
@@ -162,7 +162,7 @@ def check_status(task_id: str):
 @app.route('/', methods=['GET', 'POST'])
 def index_view():
 
-    date_load = Date_Load_Data.query.first()
+    date_load = DateLoadData.query.first()
 
     tokens: dict[str, Token] = {}
     try:
